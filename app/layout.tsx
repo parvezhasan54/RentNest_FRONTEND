@@ -1,25 +1,22 @@
 import type { Metadata } from "next";
-
+import { ThemeProvider } from "next-themes";
 import "./globals.css";
-import { Toaster } from "sonner";
-
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
-  title: "Rent Nest",
+  title: "RentNest",
   description: "Find & List Rental Properties with Ease",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>{children}
-         <Toaster/>
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          {children}
+          <Toaster richColors closeButton />
+        </ThemeProvider>
       </body>
-     
     </html>
   );
 }

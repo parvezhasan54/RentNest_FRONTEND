@@ -20,7 +20,7 @@ import { Field, FieldError } from "@/components/ui/field";
 
 
 import { CreateRentalRequest } from "@/service/rental.service";
-import { rentalRequestSchema } from "@/lib/validations/rental";
+import { rentalRequestSchema } from "@/validations/rental";
 
 interface Props {
     open: boolean;

@@ -3,72 +3,80 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Moon, Menu, User, LogOut, ArrowBigRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import SearchBar from './search-bar'
-import MobileMenu from './mobile-menu'
-import { Logo } from '../../shared/Logo'
-
-import { UserResponse } from '@/types/user'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { MdDashboard } from 'react-icons/md'
-import { CgProfile } from 'react-icons/cg'
-import Image from 'next/image'
-import logout from '@/service/logout'
+import { Heart, LayoutDashboard, LogOut, Menu, UserCircle } from 'lucide-react'
 import { toast } from 'sonner'
 
-const NAV_LINKS = [
-  { href: '/properties', label: 'Browses' }
-]
-type NavbarProps = {
-  user: UserResponse;
-};
+import { Button } from '@/components/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Logo } from '@/components/shared/Logo'
+import ThemeToggle from '@/components/shared/ThemeToggle'
+import logout from '@/service/logout'
+import { UserResponse } from '@/types/user'
+import SearchBar from './search-bar'
+import MobileMenu from './mobile-menu'
+
+type NavbarProps = { user: UserResponse }
+
+function getInitials(name?: string) {
+  if (!name) return '?'
+  return name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
+}
 
 export default function Navbar({ user }: NavbarProps) {
-  const pathname = usePathname();
-  const userData = user.data;
+  const pathname = usePathname()
+  const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [isDarkMode, setIsDarkMode] = useState(false)
-  const router = useRouter();
-  const isActive = (href: string) => pathname === href
 
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode)
-    // Toggle dark mode logic here (e.g., update HTML class, local storage, etc.)
-    if (!isDarkMode) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  }
+  const isLoggedIn = Boolean(user.success && user.data)
+  const userData = user.data
+  const role = userData?.role?.toLowerCase()
+
+  const navLinks = isLoggedIn
+    ? [
+        { href: '/', label: 'Home' },
+        { href: '/properties', label: 'Browse' },
+        { href: `/dashboard/${role}`, label: 'Dashboard' },
+        { href: '/about', label: 'About' },
+        { href: '/blog', label: 'Blog' },
+        { href: '/contact', label: 'Contact' },
+      ]
+    : [
+        { href: '/', label: 'Home' },
+        { href: '/properties', label: 'Browse' },
+        { href: '/about', label: 'About' },
+        { href: '/blog', label: 'Blog' },
+        { href: '/contact', label: 'Contact' },
+      ]
+
+  const isActive = (href: string) =>
+    href === '/' ? pathname === '/' : pathname.startsWith(href)
+
   const handleLogout = async () => {
-    await logout();
-    router.push('/auth/login');
-    toast('User logged Out')
+    await logout()
+    router.push('/auth/login')
+    router.refresh()
+    toast('Logged out')
   }
 
   return (
     <nav
-      className="sticky top-0 z-50 w-full border-b bg-background border-border"
+      className="sticky top-0 z-50 w-full border-b border-border bg-background"
       role="navigation"
       aria-label="Main navigation"
     >
-      <div className="max-w-7xl mx-auto px-6 h-18 flex items-center justify-between">
-        {/* Left Section: Logo + Navigation Links */}
-        <div className="flex items-center gap-8">
-          {/* Logo */}
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-6">
+        <div className="flex items-center gap-6">
           <Logo />
-
-          {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center gap-1">
-            {NAV_LINKS.map((link) => (
+          <div className="hidden items-center gap-1 lg:flex">
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-4 py-2 rounded-lg transition-all duration-200 ${isActive(link.href)
-                  ? "bg-accent text-accent-foreground font-semibold"
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                  }`}
+                className={`rounded-lg px-3 py-2 text-sm transition-colors ${
+                  isActive(link.href)
+                    ? 'bg-accent font-semibold text-accent-foreground'
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                }`}
               >
                 {link.label}
               </Link>
@@ -76,68 +84,71 @@ export default function Navbar({ user }: NavbarProps) {
           </div>
         </div>
 
-        {/* Center Section: Search Bar - Hidden on Mobile/Tablet */}
-        <div className="hidden lg:flex flex-1 max-w-105 mx-8">
+        <div className="mx-4 hidden max-w-sm flex-1 xl:flex">
           <SearchBar />
         </div>
 
-        {/* Right Section: Actions */}
-        <div className="flex items-center gap-3">
-          {/* Dark Mode Toggle - Hidden on Mobile */}
-          <button
-            onClick={toggleDarkMode}
-            className="hidden sm:flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-            aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            <Moon className="w-5 h-5" />
-          </button>
-          {user.success ?
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+
+          {isLoggedIn ? (
             <Popover>
-              <PopoverTrigger>
-                <span className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md hover:bg-accent">
-                  {userData?.profileImage ? <Image src={userData?.profileImage} alt='profileImage' /> : <User className="h-5 w-5" />}
-                </span>
+              <PopoverTrigger
+                aria-label="Open profile menu"
+                className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary hover:bg-primary/20"
+              >
+                {getInitials(userData?.name)}
               </PopoverTrigger>
-
-              <PopoverContent align="end" className="w-48 p-2">
-                <Button onClick={() => router.push('/dashboard/profile')} variant="ghost" className="w-full justify-start">
-                  <CgProfile />  Profile
+              <PopoverContent align="end" className="w-56 p-2">
+                <div className="px-2 py-1.5">
+                  <p className="truncate text-sm font-semibold">{userData?.name}</p>
+                  <p className="truncate text-xs text-muted-foreground">{userData?.email}</p>
+                </div>
+                <div className="my-1 h-px bg-border" />
+                <Button asChild variant="ghost" className="w-full justify-start">
+                  <Link href="/dashboard/profile"><UserCircle className="h-4 w-4" /> Profile</Link>
                 </Button>
-
-                <Button onClick={() => router.push(`/dashboard/${userData?.role.toLocaleLowerCase()}`)} variant="ghost" className="w-full justify-start">
-                  <MdDashboard /> Dashboard
+                <Button asChild variant="ghost" className="w-full justify-start">
+                  <Link href={`/dashboard/${role}`}><LayoutDashboard className="h-4 w-4" /> Dashboard</Link>
                 </Button>
-
+                {role === 'tenant' && (
+                  <Button asChild variant="ghost" className="w-full justify-start">
+                    <Link href="/dashboard/tenant/saved"><Heart className="h-4 w-4" /> Saved homes</Link>
+                  </Button>
+                )}
                 <Button
                   onClick={handleLogout}
                   variant="ghost"
-                  className="w-full justify-start text-red-500"
+                  className="w-full justify-start text-destructive hover:text-destructive"
                 >
-                  <LogOut /> Logout
+                  <LogOut className="h-4 w-4" /> Logout
                 </Button>
               </PopoverContent>
-            </Popover> : <div className='flex gap-2'><Button><Link href={'/auth/login'}>Login</Link></Button>
-              <Button onClick={() => router.push('/auth/login')}>Get Started <ArrowBigRight /></Button></div>}
+            </Popover>
+          ) : (
+            <div className="hidden items-center gap-2 sm:flex">
+              <Button asChild variant="ghost"><Link href="/auth/login">Login</Link></Button>
+              <Button asChild><Link href="/auth/register">Get Started</Link></Button>
+            </div>
+          )}
 
-
-
-          {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="md:hidden flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground lg:hidden"
             aria-label="Open menu"
             aria-expanded={mobileMenuOpen}
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="h-5 w-5" />
           </button>
         </div>
 
-        {/* Mobile Menu Sheet */}
         <MobileMenu
           isOpen={mobileMenuOpen}
           onOpenChange={setMobileMenuOpen}
-          navLinks={NAV_LINKS}
+          navLinks={navLinks}
           isActive={isActive}
+          isLoggedIn={isLoggedIn}
+          onLogout={handleLogout}
         />
       </div>
     </nav>

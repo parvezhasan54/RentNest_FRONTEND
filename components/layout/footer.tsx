@@ -9,27 +9,35 @@ import {
 import { Logo } from "@/components/shared/Logo";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { LiaLinkedin } from "react-icons/lia";
+import { SITE } from "@/lib/site";
 
 
 const renters = [
     { label: "Browse Listings", href: "/properties" },
-    { label: "Saved Homes", href: "#" },
-    { label: "Neighborhood Guide", href: "#" },
-    { label: "Rent Payments", href: "#" },
+    { label: "Saved Homes", href: "/dashboard/tenant/saved" },
+    { label: "Rent Payments", href: "/dashboard/tenant/payment/history" },
+    { label: "Help Center", href: "/help" },
 ];
 
 const landlords = [
-    { label: "List Property", href: "#" },
-    { label: "Pricing", href: "#" },
-    { label: "Tenant Screening", href: "#" },
-    { label: "Owner Dashboard", href: "#" },
+    { label: "List a Property", href: "/dashboard/landlord/properties/create" },
+    { label: "Owner Dashboard", href: "/dashboard/landlord" },
+    { label: "Manage Requests", href: "/dashboard/landlord/requests" },
+    { label: "Landlord Tips", href: "/blog" },
 ];
 
 const company = [
-    { label: "About", href: "#" },
-    { label: "Careers", href: "#" },
-    { label: "Contact", href: "#" },
-    { label: "Blog", href: "#" },
+    { label: "About", href: "/about" },
+    { label: "Blog", href: "/blog" },
+    { label: "Contact", href: "/contact" },
+    { label: "Help", href: "/help" },
+];
+
+const socials = [
+    { label: "Facebook", href: SITE.socials.facebook, Icon: FaFacebookF },
+    { label: "X", href: SITE.socials.x, Icon: FaXTwitter },
+    { label: "Instagram", href: SITE.socials.instagram, Icon: FaInstagram },
+    { label: "LinkedIn", href: SITE.socials.linkedin, Icon: LiaLinkedin },
 ];
 
 export default function Footer() {
@@ -65,33 +73,18 @@ export default function Footer() {
                         </div>
 
                         <div className="mt-8 flex gap-4">
-                            <Link
-                                href="#"
-                                className="rounded-full border p-2 transition hover:bg-primary hover:text-white"
-                            >
-                                <FaFacebookF className="h-4 w-4" />
-                            </Link>
-
-                            <Link
-                                href="#"
-                                className="rounded-full border p-2 transition hover:bg-primary hover:text-white"
-                            >
-                                <FaXTwitter className="h-4 w-4" />
-                            </Link>
-
-                            <Link
-                                href="#"
-                                className="rounded-full border p-2 transition hover:bg-primary hover:text-white"
-                            >
-                                <FaInstagram className="h-4 w-4" />
-                            </Link>
-
-                            <Link
-                                href="#"
-                                className="rounded-full border p-2 transition hover:bg-primary hover:text-white"
-                            >
-                                <LiaLinkedin className="h-4 w-4" />
-                            </Link>
+                            {socials.map(({ label, href, Icon }) => (
+                                <a
+                                    key={label}
+                                    href={href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    aria-label={label}
+                                    className="rounded-full border p-2 transition hover:bg-primary hover:text-primary-foreground"
+                                >
+                                    <Icon className="h-4 w-4" />
+                                </a>
+                            ))}
                         </div>
                     </div>
 

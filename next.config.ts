@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
-const backendApiUrl =
-  process.env.BACKEND_API_URL ?? process.env.NEXT_PUBLIC_BACKEND_URL;
+const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 if (!backendApiUrl) {
   throw new Error(

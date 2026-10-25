@@ -10,38 +10,34 @@ interface MobileMenuProps {
   onOpenChange: (open: boolean) => void
   navLinks: Array<{ href: string; label: string }>
   isActive: (href: string) => boolean
+  isLoggedIn: boolean
+  onLogout: () => void
 }
 
 export default function MobileMenu({
-  isOpen,
-  onOpenChange,
-  navLinks,
-  isActive,
+  isOpen, onOpenChange, navLinks, isActive, isLoggedIn, onLogout,
 }: MobileMenuProps) {
+  const close = () => onOpenChange(false)
+
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:w-96 p-0">
-        <SheetHeader className="border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <SheetTitle className="text-xl font-bold text-gray-900">
-              Menu
-            </SheetTitle>
-          </div>
+      <SheetContent side="right" className="w-full p-0 sm:w-96">
+        <SheetHeader className="border-b px-6 py-4">
+          <SheetTitle className="text-xl font-bold">Menu</SheetTitle>
         </SheetHeader>
 
-        <div className="flex flex-col h-full">
-          {/* Navigation Links */}
+        <div className="flex h-full flex-col">
           <div className="flex-1 overflow-y-auto px-6 py-4">
-            <nav className="space-y-2" aria-label="Mobile navigation">
+            <nav className="space-y-1" aria-label="Mobile navigation">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  onClick={() => onOpenChange(false)}
-                  className={`block px-4 py-3 rounded-lg transition-all duration-200 ${
+                  onClick={close}
+                  className={`block rounded-lg px-4 py-3 transition-colors ${
                     isActive(link.href)
-                      ? 'bg-emerald-50 text-emerald-900 font-semibold'
-                      : 'text-gray-700 hover:bg-gray-50'
+                      ? 'bg-accent font-semibold text-accent-foreground'
+                      : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                   }`}
                 >
                   {link.label}
@@ -50,24 +46,23 @@ export default function MobileMenu({
             </nav>
           </div>
 
-          {/* Separator */}
-          <Separator className="bg-gray-200" />
+          <Separator />
 
-          {/* Auth Buttons */}
-          <div className="px-6 py-4 space-y-3">
-            <Button
-              variant="outline"
-              className="w-full border-gray-300 text-gray-900 hover:bg-gray-50"
-              onClick={() => onOpenChange(false)}
-            >
-              Sign in
-            </Button>
-            <Button
-              className="w-full bg-emerald-900 hover:bg-emerald-800 text-white rounded-xl"
-              onClick={() => onOpenChange(false)}
-            >
-              Get started
-            </Button>
+          <div className="space-y-3 px-6 py-4">
+            {isLoggedIn ? (
+              <Button variant="outline" className="w-full" onClick={() => { close(); onLogout() }}>
+                Logout
+              </Button>
+            ) : (
+              <>
+                <Button asChild variant="outline" className="w-full" onClick={close}>
+                  <Link href="/auth/login">Sign in</Link>
+                </Button>
+                <Button asChild className="w-full" onClick={close}>
+                  <Link href="/auth/register">Get started</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </SheetContent>
