@@ -47,7 +47,7 @@ interface Property {
 const STATUS_FILTERS = ["ALL", "AVAILABLE", "UNAVAILABLE"];
 
 const statusStyles: Record<PropertyStatus, string> = {
-    AVAILABLE: "bg-green-100 text-green-700",
+    AVAILABLE: "bg-primary/10 text-primary",
     UNAVAILABLE: "bg-gray-100 text-gray-700",
 };
 

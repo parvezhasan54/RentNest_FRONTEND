@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { landlordService } from "@/service/landlordService";
 import { Skeleton } from "@/components/ui/skeleton";
+import DashboardInsights from "@/components/dashboard/DashboardInsights";
 
 
 
@@ -175,7 +176,7 @@ const LandlordDashboard = () => {
                 <Card>
                     <CardContent className="flex items-center gap-4 pt-6">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
-                            <ClipboardList className="h-5 w-5 text-green-700" />
+                            <ClipboardList className="h-5 w-5 text-primary" />
                         </div>
                         <div>
                             <p className="text-2xl font-bold">
@@ -204,7 +205,7 @@ const LandlordDashboard = () => {
                     </CardContent>
                 </Card>
             </div>
-
+<DashboardInsights />
             {/* Recent rental requests */}
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between">

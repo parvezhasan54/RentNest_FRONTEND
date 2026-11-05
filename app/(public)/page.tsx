@@ -1,11 +1,11 @@
 import { getPublicStats } from "@/service/stats.service";
+import { Reveal } from "@/components/motion/Reveal";
 import HeroSection from "./_component/hero-section";
 import CategoriesSection from "./_component/categories-section";
 import FeaturedProperties from "./_component/featured-properties";
+import TrendingSection from "./_component/trending-section";
 import HowItWorks from "./_component/how-it-works";
 import StatsSection from "./_component/stats-section";
-;
-
 import PopularCities from "./_component/popular-cities";
 import LatestListings from "./_component/latest-listings";
 import AiPromo from "./_component/ai-promo";
@@ -21,19 +21,20 @@ export default async function Home() {
   return (
     <div>
       <HeroSection stats={stats} />
-      <CategoriesSection categories={stats.categories} />
-      <FeaturedProperties />
-      <HowItWorks />
+      <Reveal><CategoriesSection categories={stats.categories} /></Reveal>
+      <Reveal><FeaturedProperties /></Reveal>
+      <Reveal><TrendingSection /></Reveal>
+      <Reveal><HowItWorks /></Reveal>
       <StatsSection stats={stats} />
-      <PopularCities cities={stats.cities} />
-      <LatestListings />
-      <AiPromo />
-      <Testimonials reviews={stats.reviews} />
-      <FeaturesSection />
-      <BlogHighlights/>
-      <FaqSection />
-      <Newsletter />
-      <CTASection total={stats.totalProperties} />
+      <Reveal><PopularCities cities={stats.cities} /></Reveal>
+      <Reveal><LatestListings /></Reveal>
+      <Reveal><AiPromo /></Reveal>
+      <Reveal><Testimonials reviews={stats.reviews} /></Reveal>
+      <Reveal><FeaturesSection /></Reveal>
+      <Reveal><BlogHighlights /></Reveal>
+      <Reveal><FaqSection /></Reveal>
+      <Reveal><Newsletter /></Reveal>
+      <Reveal><CTASection total={stats.totalProperties} /></Reveal>
     </div>
   );
 }

@@ -51,7 +51,7 @@ interface Property {
 }
 
 const statusStyles: Record<PropertyStatus, string> = {
-    AVAILABLE: "bg-blue-100 text-blue-700",
+    AVAILABLE: "bg-chart-2/15 text-chart-2",
     UNAVAILABLE: "bg-gray-100 text-gray-700",
 };
 

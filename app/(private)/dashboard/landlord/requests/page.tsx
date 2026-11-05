@@ -47,11 +47,11 @@ interface RentalRequest {
 }
 
 const statusStyles: Record<RequestStatus, string> = {
-    PENDING: "bg-yellow-100 text-yellow-700",
-    APPROVED: "bg-blue-100 text-blue-700",
-    ACTIVE: "bg-green-100 text-green-700",
+    PENDING: "bg-chart-3/15 text-chart-3",
+    APPROVED: "bg-chart-2/15 text-chart-2",
+    ACTIVE: "bg-primary/10 text-primary",
     COMPLETED: "bg-gray-100 text-gray-700",
-    REJECTED: "bg-red-100 text-red-700",
+    REJECTED: "bg-destructive/10 text-destructive",
 };
 
 const formatDate = (value: string | null) => {

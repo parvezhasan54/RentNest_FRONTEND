@@ -17,6 +17,7 @@ import {
 import { adminService } from "@/service/adminService";
 import { Skeleton } from "@/components/ui/skeleton";
 import StatusPie from "@/components/charts/StatusPie";
+import DashboardInsights from "@/components/dashboard/DashboardInsights";
 
 interface User {
     id: string;
@@ -265,7 +266,7 @@ const AdminDashboard = () => {
                     );
                 })}
             </div>
-
+<DashboardInsights />
             {/* Main Sections */}
             <div className="grid gap-6 lg:grid-cols-2">
                 {/* Recent Rental Requests */}
@@ -305,10 +306,10 @@ const AdminDashboard = () => {
 
                                             <span
                                                 className={`rounded-full px-3 py-1 text-xs font-medium ${status === "pending"
-                                                        ? "bg-yellow-100 text-yellow-700"
+                                                        ? "bg-chart-3/15 text-chart-3"
                                                         : status === "approved" ||
                                                             status === "active"
-                                                            ? "bg-green-100 text-green-700"
+                                                            ? "bg-primary/10 text-primary"
                                                             : "bg-muted text-muted-foreground"
                                                     }`}
                                             >

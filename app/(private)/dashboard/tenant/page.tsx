@@ -11,6 +11,7 @@ import { getMyRentalRequests } from "@/service/tenant.service";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import DashboardInsights from "@/components/dashboard/DashboardInsights";
 
 const TenantDashboard = () => {
   const [requests, setRequests] = useState<RentalRequest[]>([]);
@@ -152,7 +153,7 @@ const TenantDashboard = () => {
           </Button>
         </CardContent>
       </Card>
-
+<DashboardInsights />
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">

@@ -31,7 +31,7 @@ const RegisterForm = () => {
     }, [state, router]);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 max-w-140 mb-2 ">
+        <div className="min-h-screen flex items-center justify-center bg-background max-w-140 mb-2 ">
             <form action={action} className="w-full">
                 <Card className="rounded-xl shadow-xl border-0 p-5 space-y-2">
 
@@ -56,7 +56,7 @@ const RegisterForm = () => {
                                 type="button"
                                 onClick={() => setRole("TENANT")}
                                 className={`relative rounded-xl border-2 p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${role === "TENANT"
-                                    ? "border-green-600 bg-green-50"
+                                    ? "border-primary bg-primary/5"
                                     : "border-gray-200 bg-white"
                                     }`}
                             >
@@ -64,7 +64,7 @@ const RegisterForm = () => {
                                     <Check className="absolute right-4 top-4 h-6 w-6 rounded-full bg-green-600 p-1 text-white" />
                                 )}
 
-                                <div className="mb-5 h-14 w-14 rounded-xl bg-green-700 flex items-center justify-center">
+                                <div className="mb-5 h-14 w-14 rounded-xl bg-primary flex items-center justify-center">
                                     <KeyRound className="h-7 w-7 text-white" />
                                 </div>
 
@@ -81,7 +81,7 @@ const RegisterForm = () => {
                                 type="button"
                                 onClick={() => setRole("LANDLORD")}
                                 className={`relative rounded-xl border-2 p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${role === "LANDLORD"
-                                    ? "border-green-600 bg-green-50"
+                                    ? "border-primary bg-primary/5"
                                     : "border-gray-200 bg-white"
                                     }`}
                             >
@@ -201,7 +201,7 @@ const RegisterForm = () => {
 
                     <p className="text-center text-sm text-muted-foreground">
                         Already have an account?
-                        <Link href={'/auth/login'} className="ml-1 font-medium text-green-700 hover:underline cursor-pointer">
+                        <Link href={'/auth/login'} className="ml-1 font-medium text-primary hover:underline cursor-pointer">
                             Sign in
                         </Link>
                     </p>

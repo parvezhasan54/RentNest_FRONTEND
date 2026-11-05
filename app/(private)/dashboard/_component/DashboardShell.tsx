@@ -3,7 +3,7 @@
 import { ReactNode, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
+import { motion } from "framer-motion";
 import {
     Activity,
     BarChart3,
@@ -60,6 +60,7 @@ const navigation: Record<User["role"], NavItem[]> = {
     { label: "Properties", href: "/dashboard/admin/properties", icon: Building2 },
     { label: "Rental Requests", href: "/dashboard/admin/rentals", icon: ClipboardList },
     { label: "Payments", href: "/dashboard/admin/payments", icon: Wallet },
+    { label: "Analytics", href: "/dashboard/admin/analytics", icon: Activity },
     { label: "Categories", href: "/dashboard/admin/categories", icon: Tags },
     { label: "Messages", href: "/dashboard/admin/messages", icon: Mail },
     { label: "Profile", href: "/dashboard/profile", icon: UserCircle },
@@ -290,8 +291,15 @@ export default function DashboardShell({
 
                 {/* Page Content */}
                 <main className="p-4 md:p-6 lg:p-8">
-                    {children}
-                </main>
+  <motion.div
+    key={pathname}
+    initial={{ opacity: 0, y: 12 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.3 }}
+  >
+    {children}
+  </motion.div>
+</main>
             </div>
         </div>
     );
