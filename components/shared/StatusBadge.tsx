@@ -2,10 +2,10 @@ import { cn } from "@/lib/utils";
 import type { RequestStatus } from "@/types/rental.type";
 
 const styles: Record<RequestStatus, string> = {
-  PENDING: "bg-accent text-accent-foreground",
-  APPROVED: "bg-primary/10 text-primary",
-  ACTIVE: "bg-primary text-primary-foreground",
-  COMPLETED: "bg-secondary text-secondary-foreground",
+  PENDING: "bg-chart-3/15 text-chart-3",
+  APPROVED: "bg-chart-2/15 text-chart-2",
+  ACTIVE: "bg-primary/15 text-primary",
+  COMPLETED: "bg-muted text-muted-foreground",
   REJECTED: "bg-destructive/10 text-destructive",
 };
 

@@ -151,17 +151,9 @@ export default function Footer() {
                     </p>
 
                     <div className="flex gap-8">
-                        <Link href="#" className="hover:text-primary">
-                            Privacy Policy
-                        </Link>
-
-                        <Link href="#" className="hover:text-primary">
-                            Terms of Service
-                        </Link>
-
-                        <Link href="#" className="hover:text-primary">
-                            Cookies
-                        </Link>
+                        <Link href="/privacy" className="hover:text-primary">Privacy Policy</Link>
+<Link href="/terms" className="hover:text-primary">Terms of Service</Link>
+<Link href="/privacy#cookies" className="hover:text-primary">Cookies</Link>
                     </div>
                 </div>
             </div>

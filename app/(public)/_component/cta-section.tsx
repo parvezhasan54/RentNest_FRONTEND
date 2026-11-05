@@ -6,19 +6,18 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { compact } from "@/lib/format";
 
-
-export default function CTASection() {
+export default function CTASection({ total }: { total: number }) {
   return (
-    <section className="">
+    <section>
       <div className="container mx-auto max-w-7xl px-6">
-        <div className="overflow-hidden rounded-xl bg-primary px-5 py-5 text-primary-foreground  md:px-10 md:py-5">
+        <div className="overflow-hidden rounded-xl bg-primary px-5 py-5 text-primary-foreground md:px-10 md:py-5">
           <div className="max-w-2xl">
             <span className="inline-flex rounded-full bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur">
               Join thousands of happy renters
             </span>
 
             <h2 className="mt-6 text-4xl font-bold leading-tight md:text-5xl">
-              {compact(3164)} homes.
+              {compact(total)} homes.
               <br />
               One place to manage it all.
             </h2>
@@ -30,15 +29,8 @@ export default function CTASection() {
             </p>
 
             <div className="mt-5 flex flex-wrap gap-4">
-              <Button
-                asChild
-                size="lg"
-                variant="secondary"
-                className="rounded-xl"
-              >
-                <Link href="/auth/register">
-                  Create an account
-                </Link>
+              <Button asChild size="lg" variant="secondary" className="rounded-xl">
+                <Link href="/auth/register">Create an account</Link>
               </Button>
 
               <Button

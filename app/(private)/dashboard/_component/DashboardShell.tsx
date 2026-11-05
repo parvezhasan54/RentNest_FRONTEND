@@ -5,15 +5,21 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import {
+    Activity,
     BarChart3,
     Building2,
     ClipboardList,
     CreditCard,
+    Heart,
     Home,
     LogOut,
+    Mail,
     Menu,
     Settings,
+    Tags,
+    UserCircle,
     Users,
+    Wallet,
     X,
 } from "lucide-react";
 
@@ -26,6 +32,8 @@ import logout from "@/service/logout";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { MdSettingsSuggest } from "react-icons/md";
+import ThemeToggle from "@/components/shared/ThemeToggle";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface User {
     id: string;
@@ -46,77 +54,32 @@ interface NavItem {
 }
 
 const navigation: Record<User["role"], NavItem[]> = {
-    ADMIN: [
-        {
-            label: "Overview",
-            href: "/dashboard/admin",
-            icon: BarChart3,
-        },
-        {
-            label: "Users",
-            href: "/dashboard/admin/users",
-            icon: Users,
-        },
-        {
-            label: "Properties",
-            href: "/dashboard/admin/properties",
-            icon: Building2,
-        },
-        {
-            label: "Rental Requests",
-            href: "/dashboard/admin/rentals",
-            icon: ClipboardList,
-        }
-    ],
-
-    TENANT: [
-        {
-            label: "Overview",
-            href: "/dashboard/tenant",
-            icon: BarChart3,
-        },
-        {
-            label: "Browse Properties",
-            href: "/properties",
-            icon: Building2,
-        },
-        {
-            label: "My Rentals",
-            href: "/dashboard/tenant/rentals",
-            icon: Home,
-        },
-        {
-            label: "Rental Requests",
-            href: "/dashboard/tenant/requests",
-            icon: ClipboardList,
-        },
-        { label: "Rent Payments", href: "/dashboard/tenant/payment/history", icon: CreditCard },
-        { label: "Neighborhood Guide", href: "#", icon: MdSettingsSuggest }
-    ],
-
-    LANDLORD: [
-        {
-            label: "Overview",
-            href: "/dashboard/landlord",
-            icon: BarChart3,
-        },
-        {
-            label: "My Properties",
-            href: "/dashboard/landlord/properties",
-            icon: Building2,
-        },
-        {
-            label: "Add Property",
-            href: "/dashboard/landlord/properties/create",
-            icon: Home,
-        },
-        {
-            label: "Rental Requests",
-            href: "/dashboard/landlord/requests",
-            icon: ClipboardList,
-        },
-
-    ],
+  ADMIN: [
+    { label: "Overview", href: "/dashboard/admin", icon: BarChart3 },
+    { label: "Users", href: "/dashboard/admin/users", icon: Users },
+    { label: "Properties", href: "/dashboard/admin/properties", icon: Building2 },
+    { label: "Rental Requests", href: "/dashboard/admin/rentals", icon: ClipboardList },
+    { label: "Payments", href: "/dashboard/admin/payments", icon: Wallet },
+    { label: "Categories", href: "/dashboard/admin/categories", icon: Tags },
+    { label: "Messages", href: "/dashboard/admin/messages", icon: Mail },
+    { label: "Profile", href: "/dashboard/profile", icon: UserCircle },
+  ],
+  TENANT: [
+    { label: "Overview", href: "/dashboard/tenant", icon: BarChart3 },
+    { label: "Browse Properties", href: "/properties", icon: Building2 },
+    { label: "My Rentals", href: "/dashboard/tenant/rentals", icon: Home },
+    { label: "Rental Requests", href: "/dashboard/tenant/requests", icon: ClipboardList },
+    { label: "Saved Homes", href: "/dashboard/tenant/saved", icon: Heart },
+    { label: "Rent Payments", href: "/dashboard/tenant/payment/history", icon: CreditCard },
+    { label: "Profile", href: "/dashboard/profile", icon: UserCircle },
+  ],
+  LANDLORD: [
+    { label: "Overview", href: "/dashboard/landlord", icon: BarChart3 },
+    { label: "My Properties", href: "/dashboard/landlord/properties", icon: Building2 },
+    { label: "Add Property", href: "/dashboard/landlord/properties/create", icon: Home },
+    { label: "Rental Requests", href: "/dashboard/landlord/requests", icon: ClipboardList },
+    { label: "Profile", href: "/dashboard/profile", icon: UserCircle },
+  ],
 };
 
 function getInitials(name: string) {
@@ -304,23 +267,25 @@ export default function DashboardShell({
                     </div>
 
                     {/* Header Profile */}
-                    <div className="flex items-center gap-3">
-                        <div className="hidden text-right sm:block">
-                            <p className="text-sm font-medium">
-                                {user.name}
-                            </p>
-
-                            <p className="text-xs text-muted-foreground">
-                                {formatRole(user.role)}
-                            </p>
-                        </div>
-
-                        <Avatar>
-                            <AvatarFallback>
-                                {getInitials(user.name)}
-                            </AvatarFallback>
-                        </Avatar>
-                    </div>
+                    <Popover>
+  <PopoverTrigger aria-label="Open profile menu" className="flex cursor-pointer items-center gap-3 rounded-full outline-none">
+    <div className="hidden text-right sm:block">
+      <p className="text-sm font-medium">{user.name}</p>
+      <p className="text-xs text-muted-foreground">{formatRole(user.role)}</p>
+    </div>
+    <Avatar><AvatarFallback>{getInitials(user.name)}</AvatarFallback></Avatar>
+  </PopoverTrigger>
+  <PopoverContent align="end" className="w-56 p-2">
+    <div className="px-2 py-1.5">
+      <p className="truncate text-sm font-semibold">{user.name}</p>
+      <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+    </div>
+    <div className="my-1 h-px bg-border" />
+    <Button asChild variant="ghost" className="w-full justify-start"><Link href="/dashboard/profile"><UserCircle className="h-4 w-4" /> Profile</Link></Button>
+    <Button asChild variant="ghost" className="w-full justify-start"><Link href="/"><Home className="h-4 w-4" /> Back to Home</Link></Button>
+    <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-destructive hover:text-destructive"><LogOut className="h-4 w-4" /> Logout</Button>
+  </PopoverContent>
+</Popover>
                 </header>
 
                 {/* Page Content */}

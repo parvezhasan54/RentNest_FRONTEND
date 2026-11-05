@@ -52,10 +52,14 @@ export type Props = {
 };
 
 export type PropertyQuery = {
+  q?: string;
   city?: string;
   category?: string;
   minPrice?: string;
   maxPrice?: string;
+  bedrooms?: string;
+  minRating?: string;
+  featured?: string;
   sort?: string;
   page?: number;
   limit?: number | string;

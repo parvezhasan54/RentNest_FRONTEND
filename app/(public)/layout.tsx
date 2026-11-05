@@ -1,5 +1,6 @@
 import Navbar from "@/components/layout/Navbar/Navbar";
 import Footer from "@/components/layout/footer";
+import ChatWidget from "@/components/shared/ChatWidget";
 import { getMe } from "@/service/getMe";
 
 export default async function WebsiteLayout({
@@ -11,9 +12,10 @@ export default async function WebsiteLayout({
 
   return (
     <>
-      <Navbar user={user} />
-      <main>{children}</main>
-      <Footer />
-    </>
+  <Navbar user={user} />
+  <main>{children}</main>
+  <Footer />
+  <ChatWidget/>
+</>
   );
 }

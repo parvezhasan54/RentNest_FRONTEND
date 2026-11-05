@@ -1,281 +1,56 @@
 "use client";
-
-import { useEffect, useMemo, useState } from "react";
-
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
-import { adminService } from "@/service/adminService";
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import StatusBadge from "@/components/shared/StatusBadge";
+import DataTable from "@/components/dashboard/DataTable";
+import { adminService } from "@/service/adminService";
+import { shortDate } from "@/lib/format";
+import type { RequestStatus } from "@/types/rental.type";
 
 interface Rental {
-    id: string;
-    status?: string;
-    startDate?: string;
-    endDate?: string;
-    createdAt?: string;
-    tenant?: {
-        name?: string;
-        email?: string;
-    };
-    property?: {
-        title?: string;
-        city?: string;
-    };
+  id: string; status: RequestStatus; startDate?: string; createdAt: string;
+  tenant?: { name: string; email: string }; property?: { title: string; city: string };
 }
 
-const STATUS_FILTERS = ["ALL", "PENDING", "APPROVED", "REJECTED"];
+export default function AllRentals() {
+  const [rentals, setRentals] = useState<Rental[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-function formatDate(value?: string) {
-    if (!value) return "—";
-    const date = new Date(value);
-    if (isNaN(date.getTime())) return "—";
-    return date.toLocaleDateString(undefined, {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-    });
+  useEffect(() => {
+    adminService.getAllRentals()
+      .then((r) => setRentals(r?.data ?? []))
+      .catch(() => setError("Couldn't load rental requests. Please try again."))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Rental Requests</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{rentals.length} total</p>
+      </div>
+      {error && <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div>}
+      <Card>
+        <CardHeader><CardTitle>Requests</CardTitle></CardHeader>
+        <CardContent>
+          {loading ? <Skeleton className="h-64 w-full" /> : (
+            <DataTable
+              rows={rentals}
+              searchText={(r) => `${r.tenant?.name} ${r.tenant?.email} ${r.property?.title} ${r.property?.city}`}
+              filter={{ label: "Status", options: ["PENDING", "APPROVED", "ACTIVE", "COMPLETED", "REJECTED"], value: (r) => r.status }}
+              columns={[
+                { header: "Tenant", cell: (r) => <><p className="font-medium">{r.tenant?.name ?? "Unknown"}</p><p className="text-xs text-muted-foreground">{r.tenant?.email}</p></> },
+                { header: "Property", cell: (r) => <><p className="font-medium">{r.property?.title ?? "Unknown"}</p><p className="text-xs text-muted-foreground">{r.property?.city}</p></> },
+                { header: "Requested", cell: (r) => shortDate(r.createdAt.slice(0, 10)), className: "text-muted-foreground" },
+                { header: "Move-in", cell: (r) => (r.startDate ? shortDate(r.startDate.slice(0, 10)) : "—"), className: "text-muted-foreground" },
+                { header: "Status", cell: (r) => <StatusBadge status={r.status} /> },
+              ]}
+            />
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
-
-function statusBadgeClass(status: string) {
-    switch (status) {
-        case "pending":
-            return "bg-yellow-100 text-yellow-700";
-        case "approved":
-        case "active":
-            return "bg-green-100 text-green-700";
-        case "rejected":
-            return "bg-red-100 text-red-700";
-        default:
-            return "bg-muted text-muted-foreground";
-    }
-}
-
-const AllRentals = () => {
-    const [rentals, setRentals] = useState<Rental[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [statusFilter, setStatusFilter] = useState<string>("ALL");
-
-    useEffect(() => {
-        const loadRentals = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-
-                const response = await adminService.getAllRentals();
-
-                // Backend wraps as { success, message, data: RentalRequest[] }
-                const list: Rental[] = Array.isArray(response)
-                    ? response
-                    : response?.data || [];
-
-                setRentals(list);
-            } catch (err) {
-                console.error("Failed to load rentals:", err);
-                setError("Couldn't load rental requests. Please try again.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadRentals();
-    }, []);
-
-    const filteredRentals = useMemo(() => {
-        if (statusFilter === "ALL") return rentals;
-
-        return rentals.filter(
-            (rental) =>
-                (rental.status || "").toUpperCase() === statusFilter
-        );
-    }, [rentals, statusFilter]);
-
-    const counts = useMemo(() => {
-        return STATUS_FILTERS.reduce<Record<string, number>>((acc, key) => {
-            acc[key] =
-                key === "ALL"
-                    ? rentals.length
-                    : rentals.filter(
-                        (r) => (r.status || "").toUpperCase() === key
-                    ).length;
-            return acc;
-        }, {});
-    }, [rentals]);
-
-    return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight">
-                        Rental Requests
-                    </h1>
-
-                    <p className="mt-1 text-sm text-muted-foreground">
-                        {rentals.length} total{" "}
-                        {rentals.length === 1 ? "request" : "requests"}
-                    </p>
-                </div>
-
-                {/* Status Filter */}
-                <div className="flex flex-wrap gap-2">
-                    {STATUS_FILTERS.map((status) => (
-                        <button
-                            key={status}
-                            onClick={() => setStatusFilter(status)}
-                            className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${statusFilter === status
-                                    ? "bg-primary text-primary-foreground"
-                                    : "bg-muted text-muted-foreground hover:bg-muted/70"
-                                }`}
-                        >
-                            {status.charAt(0) + status.slice(1).toLowerCase()}{" "}
-                            <span className="opacity-70">
-                                ({counts[status] ?? 0})
-                            </span>
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {error && (
-                <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                    {error}
-                </div>
-            )}
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Requests</CardTitle>
-                </CardHeader>
-
-                <CardContent>
-                    {loading ? (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left text-sm">
-                                <thead>
-                                    <tr className="border-b text-xs uppercase tracking-wider text-muted-foreground">
-                                        <th className="pb-3 font-medium">Tenant</th>
-                                        <th className="pb-3 font-medium">Property</th>
-                                        <th className="pb-3 font-medium">Requested</th>
-                                        <th className="pb-3 font-medium">Move-in</th>
-                                        <th className="pb-3 font-medium">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y">
-                                    {Array.from({ length: 6 }).map((_, i) => (
-                                        <tr key={i}>
-                                            <td className="py-3 space-y-1.5">
-                                                <Skeleton className="h-4 w-24" />
-                                                <Skeleton className="h-3 w-32" />
-                                            </td>
-                                            <td className="py-3 space-y-1.5">
-                                                <Skeleton className="h-4 w-28" />
-                                                <Skeleton className="h-3 w-16" />
-                                            </td>
-                                            <td className="py-3"><Skeleton className="h-4 w-20" /></td>
-                                            <td className="py-3"><Skeleton className="h-4 w-20" /></td>
-                                            <td className="py-3"><Skeleton className="h-5 w-16 rounded-full" /></td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    ) : filteredRentals.length === 0 ? (
-                        <p className="py-8 text-center text-sm text-muted-foreground">
-                            No rental requests found.
-                        </p>
-                    ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left text-sm">
-                                <thead>
-                                    <tr className="border-b text-xs uppercase tracking-wider text-muted-foreground">
-                                        <th className="pb-3 font-medium">
-                                            Tenant
-                                        </th>
-                                        <th className="pb-3 font-medium">
-                                            Property
-                                        </th>
-                                        <th className="pb-3 font-medium">
-                                            Requested
-                                        </th>
-                                        <th className="pb-3 font-medium">
-                                            Move-in
-                                        </th>
-                                        <th className="pb-3 font-medium">
-                                            Status
-                                        </th>
-                                    </tr>
-                                </thead>
-
-                                <tbody className="divide-y">
-                                    {filteredRentals.map((rental) => {
-                                        const status = (
-                                            rental.status || "pending"
-                                        ).toLowerCase();
-
-                                        return (
-                                            <tr key={rental.id}>
-                                                <td className="py-3">
-                                                    <p className="font-medium">
-                                                        {rental.tenant
-                                                            ?.name ||
-                                                            "Unknown User"}
-                                                    </p>
-                                                    <p className="text-xs text-muted-foreground">
-                                                        {rental.tenant
-                                                            ?.email || ""}
-                                                    </p>
-                                                </td>
-
-                                                <td className="py-3">
-                                                    <p className="font-medium">
-                                                        {rental.property
-                                                            ?.title ||
-                                                            "Unknown Property"}
-                                                    </p>
-                                                    <p className="text-xs text-muted-foreground">
-                                                        {rental.property
-                                                            ?.city || ""}
-                                                    </p>
-                                                </td>
-
-                                                <td className="py-3 text-muted-foreground">
-                                                    {formatDate(
-                                                        rental.createdAt
-                                                    )}
-                                                </td>
-
-                                                <td className="py-3 text-muted-foreground">
-                                                    {formatDate(
-                                                        rental.startDate
-                                                    )}
-                                                </td>
-
-                                                <td className="py-3">
-                                                    <span
-                                                        className={`rounded-full px-3 py-1 text-xs font-medium ${statusBadgeClass(
-                                                            status
-                                                        )}`}
-                                                    >
-                                                        {rental.status ||
-                                                            "Pending"}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
-        </div>
-    );
-};
-
-export default AllRentals;

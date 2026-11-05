@@ -1,276 +1,118 @@
-import { SlidersHorizontal } from "lucide-react";
-
+import Link from "next/link";
 
 import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-    PaginationEllipsis
+  Pagination, PaginationContent, PaginationEllipsis, PaginationItem,
+  PaginationLink, PaginationNext, PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Button } from "@/components/ui/button";
 import { Props } from "@/types/property";
 import { getProperties } from "@/service/property.service";
-import { getSavedPropertyIds } from "@/service/getSavedPropertyIds"; 
-import PropertySort from "./_component/PropertySort";
+import { getSavedPropertyIds } from "@/service/getSavedPropertyIds";
 import PropertyFilters from "./_component/PropertyFilters";
 import PropertyCard from "./_component/PropertyCard";
 
-const PAGE_SIZE = 9;
+const PAGE_SIZE = 12; // 3 rows of 4
 
 const PropertiesPage = async ({ searchParams }: Props) => {
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
 
-    const params = await searchParams;
+  const [{ data: properties, meta }, { data: all }, savedIds] = await Promise.all([
+    getProperties({ ...params, page, limit: PAGE_SIZE }),
+    getProperties({ limit: "all" }), // only used to build the filter option lists
+    getSavedPropertyIds(),
+  ]);
 
-    const page = Number(params.page) || 1;
+  const cities = Array.from(new Set(all.map((p) => p.city))).sort();
+  const categories = Array.from(new Set(all.map((p) => p.category.name))).sort();
+  const prices = all.map((p) => p.price);
+  const minPrice = prices.length ? Math.min(...prices) : 0;
+  const maxPrice = prices.length ? Math.max(...prices) : 0;
 
-    // Paginated set — this is what actually renders as the property grid
-    const { data: properties, meta } = await getProperties({
-        ...params,
-        page,
-        limit: PAGE_SIZE,
+  const pageUrl = (n: number) => {
+    const q = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== "") q.set(k, String(v));
     });
-
-    // Full unfiltered-by-page set — used only to build filter option lists
-    // (cities, categories, price range) so they don't shift depending on
-    // which page the user is currently viewing.
-    const { data: allProperties } = await getProperties({ limit: "all" });
-
-    const savedIds = await getSavedPropertyIds(); 
-
-    const cities: string[] = [
-        "All cities",
-        ...Array.from(
-            new Set(
-                allProperties.map(
-                    (property) => property.city
-                )
-            )
-        ),
-    ];
-
-
-    const categoryNames: string[] = [
-        "All categories",
-        ...Array.from(
-            new Set(
-                allProperties.map(
-                    (property) => property.category.name
-                )
-            )
-        ),
-    ];
-
-
-    const minPrice = allProperties.length > 0
-            ? Math.min(
-                ...allProperties.map(
-                    (property) => property.price
-                )
-            )
-            : 0;
-
-
-    const maxPrice = allProperties.length > 0
-            ? Math.max(
-                ...allProperties.map(
-                    (property) => property.price
-                )
-            )
-            : 0;
-
-    const createPageURL = (pageNumber: number) => {
-
-        const query = new URLSearchParams(
-            params as Record<string, string>
-        );
-
-        query.set(
-            "page",
-            String(pageNumber)
-        );
-
-        return `/properties?${query.toString()}`;
-    };
-    const getPaginationPages = () => {
-
-        const pages: (number | string)[] = [];
-
-
-        if (meta.totalPage <= 5) {
-
-            return Array.from(
-                { length: meta.totalPage },
-                (_, i) => i + 1
-            );
-
-        }
-        pages.push(1);
-
-        if (page > 3) {
-            pages.push("...");
-        }
-
-        for (
-            let i = Math.max(2, page - 1);
-            i <= Math.min(meta.totalPage - 1, page + 1);
-            i++
-        ) {
-            pages.push(i);
-        }
-
-
-        if (page < meta.totalPage - 2) {
-            pages.push("...");
-        }
-
-
-        pages.push(meta.totalPage);
-
-
-        return pages;
-
-    };
-    return (
-        <div className="min-h-screen bg-muted/30">
-
-
-            {/* Hero */}
-
-            <section className="border-b bg-background">
-
-                <div className="mx-auto max-w-7xl px-6 py-12 flex justify-between items-center">
-
-                    <div>
-                        <h1 className="text-3xl font-bold">
-                            Browse Rentals
-                        </h1>
-                        <p>{meta.total} homes match your filters</p>
-                        <p className=" max-w-2xl text-muted-foreground">
-                            Discover verified apartments, houses and condos from trusted landlords.
-                        </p>
-                    </div>
-                    <div>
-                        <PropertySort />
-
-                    </div>
-                </div>
-
-            </section>
-
-            <div className="mx-auto grid max-w-7xl gap-8 py-10 lg:grid-cols-[280px_1fr]">
-
-
-                {/* Sidebar */}
-
-                <aside className="hidden lg:block">
-
-                    <div className="sticky top-6 min-h-screen rounded-xl border bg-background p-6">
-
-
-                        <div className="mb-6 flex items-center gap-2">
-
-                            <SlidersHorizontal className="h-5 w-5" />
-
-                            <h2 className="font-semibold">
-                                Filters
-                            </h2>
-
-                        </div>
-
-                        <PropertyFilters
-                            cities={cities}
-                            categories={categoryNames}
-                            minPrice={minPrice}
-                            maxPrice={maxPrice}
-                        />
-
-
-                    </div>
-
-                </aside>
-
-                {/* Content */}
-
-                <main>
-
-                    {/* Property Cards */}
-
-                    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-
-
-                        {properties.length > 0 ? (
-
-                            properties.map((property) => (
-
-                                <PropertyCard
-                                    key={property.id}
-                                    property={property}
-                                    initialSaved={savedIds.includes(property.id)}
-                                />
-
-                            ))
-
-                        ) : (
-
-                            <p className="text-muted-foreground">
-                                No properties found.
-                            </p>
-
-                        )}
-
-
-                    </div>
-
-                </main>
-
-                {/* Pagination */}
-                {meta.totalPage > 1 && (
-                    <div className="col-span-full flex justify-center">
-                        <Pagination>
-                            <PaginationContent>
-
-                                {page > 1 && (
-                                    <PaginationItem>
-                                        <PaginationPrevious
-                                            href={createPageURL(page - 1)}
-                                        />
-                                    </PaginationItem>
-                                )}
-
-                                {getPaginationPages().map((pageNumber, index) => (
-                                    <PaginationItem key={index}>
-                                        {pageNumber === "..." ? (
-                                            <PaginationEllipsis />
-                                        ) : (
-                                            <PaginationLink
-                                                href={createPageURL(Number(pageNumber))}
-                                                isActive={pageNumber === page}
-                                            >
-                                                {pageNumber}
-                                            </PaginationLink>
-                                        )}
-                                    </PaginationItem>
-                                ))}
-
-                                {page < meta.totalPage && (
-                                    <PaginationItem>
-                                        <PaginationNext
-                                            href={createPageURL(page + 1)}
-                                        />
-                                    </PaginationItem>
-                                )}
-
-                            </PaginationContent>
-                        </Pagination>
-                    </div>
-                )}
-            </div>
-
+    q.set("page", String(n));
+    return `/properties?${q.toString()}`;
+  };
+
+  const pages = (): (number | "...")[] => {
+    const total = meta.totalPage;
+    if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
+    const out: (number | "...")[] = [1];
+    if (page > 3) out.push("...");
+    for (let i = Math.max(2, page - 1); i <= Math.min(total - 1, page + 1); i++) out.push(i);
+    if (page < total - 2) out.push("...");
+    out.push(total);
+    return out;
+  };
+
+   return (
+    <div className="min-h-screen bg-muted/30">
+      <section className="border-b bg-background">
+        <div className="mx-auto max-w-7xl px-6 py-10">
+          <h1 className="text-3xl font-bold">Browse Rentals</h1>
+          <p className="mt-1 text-muted-foreground">
+            {meta.total} home{meta.total === 1 ? "" : "s"} match your filters
+          </p>
         </div>
-    );
-};
+      </section>
 
+      <div className="mx-auto max-w-7xl space-y-8 px-6 py-8">
+        <PropertyFilters
+  cities={cities}
+  categories={categories}
+  minPrice={minPrice}
+  maxPrice={maxPrice}
+/>
+
+        {properties.length > 0 ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {properties.map((property) => (
+              <PropertyCard key={property.id} property={property} initialSaved={savedIds.includes(property.id)} />
+            ))}
+          </div>
+        ) : (
+          <p className="py-16 text-center text-muted-foreground">No properties match your filters.</p>
+        )}
+
+        {meta.totalPage > 1 && (
+  <Pagination>
+    <PaginationContent>
+      {page > 1 && (
+        <PaginationItem>
+          <PaginationPrevious href={pageUrl(page - 1)} />
+        </PaginationItem>
+      )}
+
+      {pages().map((n, i) => (
+        <PaginationItem key={`${n}-${i}`}>
+          {n === "..." ? (
+            <PaginationEllipsis />
+          ) : (
+            <PaginationLink
+              href={pageUrl(n)}
+              isActive={n === page}
+            >
+              {n}
+            </PaginationLink>
+          )}
+        </PaginationItem>
+      ))}
+
+      {page < meta.totalPage && (
+        <PaginationItem>
+          <PaginationNext href={pageUrl(page + 1)} />
+        </PaginationItem>
+      )}
+    </PaginationContent>
+  </Pagination>
+)}
+      </div>
+    </div>
+  );
+};
 
 export default PropertiesPage;

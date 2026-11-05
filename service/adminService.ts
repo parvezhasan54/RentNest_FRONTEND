@@ -60,7 +60,8 @@ export const adminService = {
             body: JSON.stringify(data),
         });
     },
-
+getAllPayments: async () => apiClient("/admin/payments"),
+getAllMessages: async () => apiClient("/admin/messages"),
     deleteProperty: async (id: string) => {
         return apiClient(`/admin/properties/${id}`, {
             method: "DELETE",

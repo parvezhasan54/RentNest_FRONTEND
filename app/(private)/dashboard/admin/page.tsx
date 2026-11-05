@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/card";
 import { adminService } from "@/service/adminService";
 import { Skeleton } from "@/components/ui/skeleton";
+import StatusPie from "@/components/charts/StatusPie";
 
 interface User {
     id: string;
@@ -172,7 +173,13 @@ const AdminDashboard = () => {
     const rentedPercentage = (rentedProperties / propertyTotal) * 100;
 
     const pendingPercentage = (pendingProperties / propertyTotal) * 100;
-
+    const statusData = Object.entries(
+        rentals.reduce<Record<string, number>>((acc, r) => {
+            const s = (r.status ?? "PENDING").toUpperCase();
+            acc[s] = (acc[s] ?? 0) + 1;
+            return acc;
+        }, {})
+    ).map(([name, value]) => ({ name, value }));
     if (loading) {
         return (
             <div className="space-y-8">
@@ -394,6 +401,14 @@ const AdminDashboard = () => {
                                 </div>
                             </div>
                         </div>
+                    </CardContent>
+                </Card>
+                                <Card className="lg:col-span-2">
+                    <CardHeader>
+                        <CardTitle>Rental requests by status</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <StatusPie data={statusData} />
                     </CardContent>
                 </Card>
             </div>
